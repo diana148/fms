@@ -3,14 +3,12 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h1 class="h3 mb-1"><i class="fas fa-users me-3 text-secondary"></i>User Management</h1>
-        <p class="text-muted mb-0">Manage system users, roles, and access.</p>
+        <h1 class="h3 mb-1"><i class="fas fa-user-shield me-3 text-info"></i>User Management</h1>
+        <p class="text-muted mb-0">Manage system users, their roles, and status.</p>
     </div>
-    @can('manage-users') {{-- Only admins can create users --}}
     <a href="{{ route('users.create') }}" class="btn btn-primary">
         <i class="fas fa-plus-circle me-2"></i>Add New User
     </a>
-    @endcan
 </div>
 
 @if (session('success'))
@@ -20,74 +18,54 @@
     </div>
 @endif
 
-@if (session('error'))
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        {{ session('error') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
-
-<div class="card shadow-sm">
-    <div class="card-header bg-secondary text-white">
-        <h5 class="mb-0"><i class="fas fa-list me-2"></i>All Users</h5>
-    </div>
+<div class="card shadow-sm mb-4">
     <div class="card-body">
-        @if($users->isEmpty())
-            <div class="alert alert-info text-center" role="alert">
-                No users found.
-            </div>
-        @else
-            <div class="table-responsive">
-                <table class="table table-hover table-striped mb-0">
-                    <thead>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($users as $user)
                         <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Role</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($users as $user)
-                        <tr>
-                            <th scope="row">{{ $loop->iteration }}</th>
+                            <td>{{ $user->id }}</td>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
-                            <td><span class="badge bg-{{ $user->isAdmin() ? 'danger' : ($user->isManager() ? 'info' : ($user->isTechnician() ? 'primary' : 'secondary')) }}">{{ ucfirst($user->role) }}</span></td>
+                            <td><span class="badge bg-{{ $user->role == 'admin' ? 'danger' : ($user->role == 'manager' ? 'warning' : 'primary') }}">{{ ucfirst($user->role) }}</span></td>
                             <td>
                                 @if($user->is_active)
                                     <span class="badge bg-success">Active</span>
                                 @else
-                                    <span class="badge bg-warning">Inactive</span>
+                                    <span class="badge bg-secondary">Inactive</span>
                                 @endif
                             </td>
-                            <td>
-                                @can('manage-users')
-                                <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-outline-warning me-1" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                @if(auth()->user()->id !== $user->id) {{-- Prevent user from deleting their own account --}}
-                                <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                            <td class="text-end">
+                                <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-primary me-1" title="Edit User"><i class="fas fa-edit"></i></a>
+                                <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
+                                    <button type="submit" class="btn btn-sm btn-danger" title="Delete User"><i class="fas fa-trash-alt"></i></button>
                                 </form>
-                                @endif
-                                @endcan
                             </td>
                         </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            <div class="mt-3">
-                {{ $users->links() }}
-            </div>
-        @endif
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No users found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-light d-flex justify-content-center">
+        {{ $users->links() }}
     </div>
 </div>
 @endsection

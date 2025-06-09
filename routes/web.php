@@ -9,7 +9,9 @@ use App\Http\Controllers\ServiceTypeController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\InstallationController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\UserController; // <-- Add this line
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\InvoiceController;
+// Removed: use App\Http\Controllers\SettingController;
 
 // Authentication Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -40,9 +42,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/installations/download', [ReportController::class, 'downloadInstallationsReport'])->name('reports.installations.download');
     Route::get('/reports/contracts-by-service-type/download', [ReportController::class, 'downloadContractsByServiceTypeReport'])->name('reports.contracts_by_service_type.download');
 
-    // User Management Routes <-- Add this block
+    // User Management Routes
     Route::resource('users', UserController::class);
 
-    // Settings (if you plan to implement)
-    Route::get('/settings', function() { return 'Settings Page'; })->name('settings.index');
+    // Invoice Management Routes
+    Route::resource('invoices', InvoiceController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);
+    Route::post('/invoices/generate', [InvoiceController::class, 'generateMonthlyInvoices'])->name('invoices.generate');
+    Route::get('/invoices/{invoice}/download', [InvoiceController::class, 'downloadInvoice'])->name('invoices.download');
+
+    //Removed: Settings Routes
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
 });

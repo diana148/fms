@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Controllers; // <-- Ensure this namespace is correct
+namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\Contract;
 use App\Models\Installation;
 use App\Models\ServiceType;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Http\Controllers\Controller;
 
@@ -16,14 +15,8 @@ class ReportController extends Controller
     public function __construct()
     {
         // Apply 'auth' middleware to all methods in this controller
-        // Apply 'download-reports' gate to only the download methods
+        // Removed 'can:download-reports' middleware
         $this->middleware('auth');
-        $this->middleware('can:download-reports')->only([
-            'downloadClientsReport',
-            'downloadContractsReport',
-            'downloadInstallationsReport',
-            'downloadContractsByServiceTypeReport'
-        ]);
     }
 
     /**
@@ -41,8 +34,8 @@ class ReportController extends Controller
         $activeContracts = Contract::where('status', 'active')->count();
         $expiredContracts = Contract::where('end_date', '<', now())->count();
         $contractsExpiringSoon = Contract::where('end_date', '>', now())
-                                        ->where('end_date', '<=', now()->addDays(30))
-                                        ->count();
+                                         ->where('end_date', '<=', now()->addDays(30))
+                                         ->count();
 
         // Contracts by Service Type (Example)
         $contractsByServiceType = ServiceType::withCount('contractServices')->get();
@@ -55,8 +48,8 @@ class ReportController extends Controller
 
         // Installations by Status (Example)
         $installationsByStatus = Installation::select('status', \DB::raw('count(*) as count'))
-                                            ->groupBy('status')
-                                            ->get();
+                                             ->groupBy('status')
+                                             ->get();
 
 
         return view('reports.index', compact(

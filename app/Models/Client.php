@@ -18,4 +18,11 @@ class Client extends Model
         return $this->hasMany(Contract::class);
     }
 
+    /**
+     * Get the invoices for the client.
+     */
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
 }

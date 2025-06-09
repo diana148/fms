@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            // Add 'role' column, default to 'user' or 'standard'
-            $table->string('role')->default('user')->after('email'); // Or after any column you prefer
+        Schema::create('app_settings', function (Blueprint $table) {
+            $table->id();
+            $table->string('key')->unique(); // e.g., 'default_currency', 'smtp_host'
+            $table->text('value')->nullable(); // The actual setting value
+            $table->timestamps();
         });
     }
 
@@ -22,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('role');
-        });
+        Schema::dropIfExists('app_settings');
     }
 };

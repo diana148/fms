@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Hash; // Import Hash facade
-use App\Http\Requests\StoreUserRequest; // Import your form requests
+use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 
 class UserController extends Controller
@@ -14,9 +13,8 @@ class UserController extends Controller
     public function __construct()
     {
         // Apply 'auth' middleware to all methods in this controller
-        // Apply 'manage-users' gate to all methods except potentially 'show' or 'index' if you want broader visibility
+        // Removed 'can:manage-users' middleware
         $this->middleware('auth');
-        $this->middleware('can:manage-users')->except(['show']); // Adjust as needed
     }
 
     /**
@@ -24,7 +22,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::paginate(10); // Paginate users for better performance
+        $users = User::paginate(10);
         return view('users.index', compact('users'));
     }
 
@@ -39,16 +37,16 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUserRequest $request) // Use the StoreUserRequest for validation
+    public function store(StoreUserRequest $request)
     {
         $data = $request->validated();
 
         // Hash the password before storing
         $data['password'] = Hash::make($data['password']);
 
-        User::create($data);
+        User::create($data); // Create the user
 
-        return redirect()->route('users.index')->with('success', 'User created successfully!');
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
     /**
@@ -56,8 +54,6 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        // You might decide if non-admins can view user profiles
-        // If not, you might add ->middleware('can:manage-users') here
         return view('users.show', compact('user'));
     }
 
@@ -72,21 +68,20 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUserRequest $request, User $user) // Use the UpdateUserRequest for validation
+    public function update(UpdateUserRequest $request, User $user)
     {
         $data = $request->validated();
 
-        // Only hash password if it's provided (i.e., user wants to change it)
+        // Only update password if provided
         if (isset($data['password']) && !empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         } else {
-            // Remove password from data array if not provided, so it doesn't try to set it to null
-            unset($data['password']);
+            unset($data['password']); // Don't update password if it's empty
         }
 
         $user->update($data);
 
-        return redirect()->route('users.index')->with('success', 'User updated successfully!');
+        return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
     /**
@@ -94,13 +89,7 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        // Prevent deleting yourself
-        if (auth()->user()->id === $user->id) {
-            return redirect()->route('users.index')->with('error', 'You cannot delete your own account.');
-        }
-
         $user->delete();
-
-        return redirect()->route('users.index')->with('success', 'User deleted successfully!');
+        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 }

@@ -3,11 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory; // Good practice to include if you use factories
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Installation extends Model
 {
-    use HasFactory; // Include this if you're using factories
+    use HasFactory;
 
     protected $fillable = [
         'contract_id', 'service_type_id', 'vehicle_plate_number',
@@ -15,13 +15,8 @@ class Installation extends Model
         'technician_id', 'status', 'notes'
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
-        'installation_date' => 'date', // Change from protected $dates
+        'installation_date' => 'date',
     ];
 
     public function contract()
@@ -39,8 +34,9 @@ class Installation extends Model
         return $this->belongsTo(User::class, 'technician_id');
     }
 
+    // Add a direct client relationship through the contract
     public function client()
     {
-        return $this->belongsTo(Client::class);
+        return $this->hasOneThrough(Client::class, Contract::class);
     }
 }

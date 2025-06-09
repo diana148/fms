@@ -6,21 +6,20 @@
         <h1 class="h3 mb-1"><i class="fas fa-chart-bar me-3 text-success"></i>Reports Dashboard</h1>
         <p class="text-muted mb-0">Overview and analytical reports for your fleet management system.</p>
     </div>
-    {{-- Download All Reports Button Group (visible only to authorized users) --}}
-    @can('download-reports')
-<div class="btn-group">
-    <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="fas fa-download me-2"></i>Download Reports
-    </button>
-    <ul class="dropdown-menu dropdown-menu-end">
-        <li><a class="dropdown-item" href="{{ route('reports.clients.download') }}">Clients Report (CSV)</a></li>
-        <li><a class="dropdown-item" href="{{ route('reports.contracts.download') }}">Contracts Report (CSV)</a></li>
-        <li><a class="dropdown-item" href="{{ route('reports.installations.download') }}">Installations Report (CSV)</a></li>
-        <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="{{ route('reports.contracts_by_service_type.download') }}">Contracts by Service Type (CSV)</a></li>
-    </ul>
-</div>
-@endcan
+    {{-- Download All Reports Button Group (visible to all authenticated users) --}}
+    {{-- Removed @can('download-reports') block --}}
+    <div class="btn-group">
+        <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-download me-2"></i>Download Reports
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="{{ route('reports.clients.download') }}">Clients Report (CSV)</a></li>
+            <li><a class="dropdown-item" href="{{ route('reports.contracts.download') }}">Contracts Report (CSV)</a></li>
+            <li><a class="dropdown-item" href="{{ route('reports.installations.download') }}">Installations Report (CSV)</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ route('reports.contracts_by_service_type.download') }}">Contracts by Service Type (CSV)</a></li>
+        </ul>
+    </div>
 </div>
 
 <div class="row">

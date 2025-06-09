@@ -3,11 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory; // Good practice to include if you use factories
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Contract extends Model
 {
-    // If you use model factories, include this trait
     use HasFactory;
 
     protected $fillable = [
@@ -15,15 +14,9 @@ class Contract extends Model
         'currency', 'total_installation_cost', 'monthly_cost', 'status', 'notes'
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
-        'start_date' => 'date', // Casts to a Carbon date object (no time)
-        'end_date' => 'date',   // Casts to a Carbon date object (no time)
-        // You can add other casts here, e.g., 'is_active' => 'boolean'
+        'start_date' => 'date',
+        'end_date' => 'date',
     ];
 
     public function client()
@@ -41,7 +34,14 @@ class Contract extends Model
         return $this->hasMany(Installation::class);
     }
 
-    // These methods are good and will work with Carbon dates after casting
+    /**
+     * Get the invoices for the contract.
+     */
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
     public function isActive()
     {
         return $this->status === 'active' && $this->end_date >= now();
